@@ -7,14 +7,15 @@
         mc:Ignorable="d"
         Title="GPF Editor" Height="450" Width="800">
     <Grid>
-        <Image x:Name="gpfImage" HorizontalAlignment="Left" Height="400" Margin="10,10,0,0" VerticalAlignment="Top" Width="400"/>
-        <Button x:Name="btnOpenTGA" Content="Open TGA" HorizontalAlignment="Left" Height="30" Margin="566,45,0,0" VerticalAlignment="Top" Width="110" Click="BtnOpenTGA_Click"/>
-        <Button x:Name="btnOpenGPF" Content="Open GPF" HorizontalAlignment="Left" Height="30" Margin="567,10,0,0" VerticalAlignment="Top" Width="109" Click="BtnOpenGPF_Click"/>
-        <Button x:Name="btnSaveTGA" Content="Save TGA" Height="30" Margin="681,45,10,0" VerticalAlignment="Top" Click="BtnSaveTGA_Click"/>
-        <Button x:Name="btnSaveGPF" Content="Save GPF" Height="30" Margin="681,10,10,0" VerticalAlignment="Top" Click="BtnSaveGPF_Click"/>
-        <DataGrid x:Name="charTableDataGrid" Margin="567,125,10,10" ItemsSource="{Binding CharGrid.CharTable}"/>
-        <TextBox x:Name="txtRowHeight" HorizontalAlignment="Left" Margin="678,92,0,0" TextWrapping="Wrap" Text="{Binding CharGrid.RowHeight, Mode = TwoWay}" VerticalAlignment="Top" Width="120"/>
-        <Label x:Name="lblRowHeight" Content="Row Height" HorizontalAlignment="Left" Margin="567,92,0,0" VerticalAlignment="Top" Width="84"/>
+        <Image x:Name="GpfImage" HorizontalAlignment="Left" Height="400" Margin="10,10,0,0" VerticalAlignment="Top" Width="400"/>
+        <Button x:Name="BtnOpenTGA" Content="Open TGA" HorizontalAlignment="Left" Height="30" Margin="567,45,0,0" VerticalAlignment="Top" Width="110" Click="BtnOpenTGA_Click"/>
+        <Button x:Name="BtnOpenGPF" Content="Open GPF" HorizontalAlignment="Left" Height="30" Margin="567,10,0,0" VerticalAlignment="Top" Width="109" Click="BtnOpenGPF_Click"/>
+        <Button x:Name="BtnSaveTGA" Content="Save TGA" Height="30" Margin="681,45,10,0" VerticalAlignment="Top" Click="BtnSaveTGA_Click"/>
+        <Button x:Name="BtnSaveGPF" Content="Save GPF" Height="30" Margin="681,10,10,0" VerticalAlignment="Top" Click="BtnSaveGPF_Click"/>
+        <DataGrid x:Name="CharTableDataGrid" Margin="567,189,10,10" ItemsSource="{Binding CharGrid.CharTable}"/>
+        <TextBox x:Name="TxtRowHeight" Margin="670,162,10,0" TextWrapping="Wrap" Text="{Binding CharGrid.RowHeight, Mode = TwoWay}" VerticalAlignment="Top"/>
+        <Label x:Name="LblRowHeight" Content="Row Height" HorizontalAlignment="Left" Margin="567,158,0,0" VerticalAlignment="Top" Width="84"/>
+        <Button x:Name="BtnExportPatch" Content="Export Patch Files" HorizontalAlignment="Left" Height="30" Margin="626,113,0,0" VerticalAlignment="Top" Width="110" Click="BtnExportPatch_Click"/>
 
     </Grid>
 </Window>

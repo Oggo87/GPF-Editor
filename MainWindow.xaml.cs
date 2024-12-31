@@ -1,16 +1,5 @@
 ﻿using Microsoft.Win32;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace GPF_Editor
 {
@@ -20,15 +9,15 @@ namespace GPF_Editor
     public partial class MainWindow : Window
     {
 
-        GPFont gpFont = new();
+        GPFont GpFont = new();
 
         public MainWindow()
         {
             InitializeComponent();
 
-            DataContext = gpFont;
+            DataContext = GpFont;
 
-            charTableDataGrid.ItemsSource = gpFont.CharGrid.CharTable;
+            CharTableDataGrid.ItemsSource = GpFont.CharGrid.CharTable;
 
         }
 
@@ -41,8 +30,17 @@ namespace GPF_Editor
             if (openTga.ShowDialog() == true)
             {
                 using var tgaStream = openTga.OpenFile();
-                gpFont.FontImage = SixLabors.ImageSharp.Image.Load<L8>(tgaStream);
-                gpfImage.Source = gpFont.GetBMP();
+
+                bool autoScale = false;
+
+                if (GpFont.FontImage != null)
+                {
+                    var autoScaleMsgBoxRslt = MessageBox.Show("Auto-scale?", "Auto-scale", MessageBoxButton.YesNo);
+                    autoScale = autoScaleMsgBoxRslt == MessageBoxResult.Yes;
+                }
+
+                GpFont.ImportImage(tgaStream, autoScale);
+                GpfImage.Source = GpFont.GetBMP();
             }
         }
 
@@ -55,8 +53,8 @@ namespace GPF_Editor
             if (openGPF.ShowDialog() == true)
             {
                 using var gpfStream = openGPF.OpenFile();
-                gpFont.LoadGPF(gpfStream);
-                gpfImage.Source = gpFont.GetBMP();
+                GpFont.LoadGPF(gpfStream);
+                GpfImage.Source = GpFont.GetBMP();
             }
         }
 
@@ -69,7 +67,7 @@ namespace GPF_Editor
             if (saveTga.ShowDialog() == true)
             {
                 using var tgaStream = saveTga.OpenFile();
-                gpFont.FontImage.SaveAsTga(tgaStream);
+                GpFont.ExportTga(tgaStream);
             }
         }
 
@@ -82,7 +80,22 @@ namespace GPF_Editor
             if (saveGpf.ShowDialog() == true)
             {
                 using var gpfStream = saveGpf.OpenFile();
-                gpFont.SaveGPF(gpfStream);
+                GpFont.SaveGPF(gpfStream);
+            }
+        }
+
+        private void BtnExportPatch_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog savePatch = new()
+            {
+                Filter = "Directory | directory",
+                FileName = "patch files"
+            };
+            if (savePatch.ShowDialog() == true)
+            {
+                string savePath = System.IO.Path.GetDirectoryName(savePatch.FileName);
+                GpFont.ExportPatchFiles(savePath);
+
             }
         }
     }

@@ -4,19 +4,51 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media;
 using System.Windows;
 using System.IO;
-using SixLabors.ImageSharp.ColorSpaces;
 using System.Runtime.InteropServices;
+using IniParser.Model;
+using IniParser;
+using System.Text;
+using System.DirectoryServices.ActiveDirectory;
+using System.Net;
 
 namespace GPF_Editor
 {
     public class GPFont
     {
-        public Image<L8> FontImage { get; set; }
+        private Image<L8>? _fontImage;
+
+        public Image<L8>? FontImage
+        { 
+            get => _fontImage;
+
+            set
+            {
+                _fontImage = value;
+
+                if(_fontImage != null)
+                {
+                    ScaleFactor = DefaultScaling * DefaultResolution / _fontImage.Width;
+                }
+                else
+                {
+                    ScaleFactor = DefaultScaling;
+                }
+            } 
+        }
         public GPCharGrid CharGrid { get; set; }
+
+        private int DefaultResolution { get; } = 256;
+
+        private float DefaultScaling { get; } = 0.0015625f;
+
+        private int ScalingAddress { get; } = 0x001fa0c8;
+
+        public float ScaleFactor { get; private set; }
 
         public GPFont()
         {
             CharGrid = new GPCharGrid();
+            ScaleFactor = DefaultScaling;
         }
 
         public WriteableBitmap GetBMP()
@@ -42,7 +74,7 @@ namespace GPF_Editor
                             rgba.FromL8(pixelRow[x]);
                             var color = rgba.A << 24 | rgba.R << 16 | rgba.G << 8 | rgba.B;
 
-                            System.Runtime.InteropServices.Marshal.WriteInt32(backBufferPos, color);
+                            Marshal.WriteInt32(backBufferPos, color);
                         }
                     }
                 });
@@ -56,7 +88,7 @@ namespace GPF_Editor
             return bmp;
         }
 
-        internal void LoadGPF(Stream gpfStream)
+        public void LoadGPF(Stream gpfStream)
         {
             using BinaryReader reader = new(gpfStream, System.Text.Encoding.Unicode);
 
@@ -86,7 +118,7 @@ namespace GPF_Editor
             FontImage = Image.LoadPixelData<L8>(tgaData, tgaWidth, tgaHeight);
         }
 
-        internal void SaveGPF(Stream gpfStream)
+        public void SaveGPF(Stream gpfStream)
         {
             using BinaryWriter writer = new(gpfStream, System.Text.Encoding.Unicode);
             // Write number of CharGrid entries
@@ -118,6 +150,117 @@ namespace GPF_Editor
                     writer.Write(byteSpan.ToArray());
                 }
             });
+        }
+
+        public void ImportImage(Stream stream, bool autoScale = false)
+        {
+            ImportImage(Image.Load<L8>(stream), autoScale);
+        }
+
+        public void ImportImage(Image<L8> image, bool autoScale = false)
+        { 
+            int currentResolution = FontImage?.Width ?? DefaultResolution;
+
+            if (autoScale)
+            {
+                float scaleFactor = image.Width / currentResolution;
+                CharGrid.ScaleGrid(scaleFactor);
+            }
+
+            FontImage = image;
+        }
+
+        public void ExportTga(Stream stream)
+        {
+            FontImage.SaveAsTga(stream);
+        }
+
+        public void ScaleGrid(float scale)
+        {
+            CharGrid.ScaleGrid(scale);
+        }
+
+        public void ExportPatchFiles(string savePath)
+        {
+            ExportCapFile(savePath);
+            ExportPatchFile(savePath);
+            ExportTargetFile(savePath);
+        }
+
+        public void ExportCapFile(string savePath)
+        {
+            string capFile = Path.Combine(savePath, "fontscale.cap");
+            FileStream capStream = new(capFile, FileMode.Create);
+            using BinaryWriter capWriter = new(capStream);
+
+            capWriter.Write("CBIN".ToCharArray());
+
+            capWriter.Write(0);
+
+            capWriter.Write(0);
+
+            capWriter.Write(1); //number of entries in the cap file
+
+            capWriter.Write((short)102); //GP4 v1.02
+
+            capWriter.Write((short)1);
+
+            capWriter.Write("%GP4EXE".ToCharArray());
+
+            //zero fill
+            for (var i = 0; i< 0x79; i++)
+            {
+                capWriter.Write((byte)0);
+            }
+
+            capWriter.Write(ScalingAddress);
+
+            capWriter.Write(160); //address of the patch in the file
+
+            capWriter.Write(Marshal.SizeOf(ScaleFactor));
+
+            capWriter.Write(ScaleFactor);
+
+        }
+
+        public void ExportPatchFile(string savePath)
+        {
+            string patchFile = Path.Combine(savePath, "fontscale_patch.ini");
+
+            byte[] scaleBytes = BitConverter.GetBytes(ScaleFactor);
+            string scaleString = "0x" + string.Join(", 0x", scaleBytes.Select(b => b.ToString("X")));
+
+            var parser = new FileIniDataParser();
+            IniData data = new();
+
+            data["Main"]["Format"] = "";
+            data["V1.02"]["Offset1"] = "0x" + ScalingAddress.ToString("X8");
+            data["V1.02"]["Code1"] = scaleString;
+
+            parser.WriteFile(patchFile, data);
+        }
+
+        public void ExportTargetFile(string savePath)
+        {
+            string targetFile = Path.Combine(savePath, "fontscale_target.ini");
+
+            byte[] scaleBytes = BitConverter.GetBytes(ScaleFactor);
+            string scaleString = "0x" + string.Join(", 0x", scaleBytes.Select(b => b.ToString("X")));
+
+            var parser = new FileIniDataParser();
+            IniData data = new();
+
+            data["offset1"]["name"] = FontImage.Width.ToString() + " Fonts";
+            data["offset1"]["description"] = FontImage.Width.ToString() + "x" + FontImage.Height.ToString() + " GPF Fonts";
+            data["offset1"]["author"] = "GPF Font Editor";
+            data["offset1"]["address"] = "0x" + ScalingAddress.ToString("X8");
+            data["offset1"]["format"] = "float";
+            data["offset1"]["valueinhex"] = scaleString;
+            data["offset1"]["category"] = "";
+            data["offset1"]["subcategory"] = "";
+            data["offset1"]["skipoffset"] = "0";
+
+            parser.WriteFile(targetFile, data);
         }
     }
 }
