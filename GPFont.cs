@@ -10,11 +10,16 @@ using IniParser;
 using System.Text;
 using System.DirectoryServices.ActiveDirectory;
 using System.Net;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace GPF_Editor
 {
-    public class GPFont
+    public class GPFont : INotifyPropertyChanged
     {
+        // Propery Changed Event
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         private Image<L8>? _fontImage;
 
         public Image<L8>? FontImage
@@ -28,10 +33,12 @@ namespace GPF_Editor
                 if(_fontImage != null)
                 {
                     ScaleFactor = DefaultScaling * DefaultResolution / _fontImage.Width;
+                    SaveEnabled = true;
                 }
                 else
                 {
                     ScaleFactor = DefaultScaling;
+                    SaveEnabled = false;
                 }
             } 
         }
@@ -45,45 +52,69 @@ namespace GPF_Editor
 
         public float ScaleFactor { get; private set; }
 
+        private bool _saveEnabled;
+        public bool SaveEnabled
+        {
+            get => _saveEnabled;
+            private set
+            {
+                _saveEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+
         public GPFont()
         {
             CharGrid = new GPCharGrid();
             ScaleFactor = DefaultScaling;
         }
 
-        public WriteableBitmap GetBMP()
+        // OnPropertyChanged method (from INotifyPropertyChanged) to raise the event
+        // The calling member's name will be used as the parameter.
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
-            var bmp = new WriteableBitmap(FontImage.Width, FontImage.Height, FontImage.Metadata.HorizontalResolution, FontImage.Metadata.VerticalResolution, PixelFormats.Bgra32, null);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
 
-            bmp.Lock();
-            try
+        public WriteableBitmap? GetBMP()
+        {
+
+            WriteableBitmap? bmp = null;
+                
+            if(FontImage != null)
             {
+                bmp = new WriteableBitmap(FontImage.Width, FontImage.Height, FontImage.Metadata.HorizontalResolution, FontImage.Metadata.VerticalResolution, PixelFormats.Bgra32, null);
 
-                FontImage.ProcessPixelRows(accessor =>
+                bmp.Lock();
+                try
                 {
-                    var backBuffer = bmp.BackBuffer;
 
-                    for (var y = 0; y < FontImage.Height; y++)
+                    FontImage.ProcessPixelRows(accessor =>
                     {
-                        Span<L8> pixelRow = accessor.GetRowSpan(y);
+                        var backBuffer = bmp.BackBuffer;
 
-                        for (var x = 0; x < FontImage.Width; x++)
+                        for (var y = 0; y < FontImage.Height; y++)
                         {
-                            var backBufferPos = backBuffer + (y * FontImage.Width + x) * 4;
-                            Rgba32 rgba = new();
-                            rgba.FromL8(pixelRow[x]);
-                            var color = rgba.A << 24 | rgba.R << 16 | rgba.G << 8 | rgba.B;
+                            Span<L8> pixelRow = accessor.GetRowSpan(y);
 
-                            Marshal.WriteInt32(backBufferPos, color);
+                            for (var x = 0; x < FontImage.Width; x++)
+                            {
+                                var backBufferPos = backBuffer + (y * FontImage.Width + x) * 4;
+                                Rgba32 rgba = new();
+                                rgba.FromL8(pixelRow[x]);
+                                var color = rgba.A << 24 | rgba.R << 16 | rgba.G << 8 | rgba.B;
+
+                                Marshal.WriteInt32(backBufferPos, color);
+                            }
                         }
-                    }
-                });
+                    });
 
-                bmp.AddDirtyRect(new Int32Rect(0, 0, FontImage.Width, FontImage.Height));
-            }
-            finally
-            {
-                bmp.Unlock();
+                    bmp.AddDirtyRect(new Int32Rect(0, 0, FontImage.Width, FontImage.Height));
+                }
+                finally
+                {
+                    bmp.Unlock();
+                }
             }
             return bmp;
         }
@@ -118,38 +149,45 @@ namespace GPF_Editor
             FontImage = Image.LoadPixelData<L8>(tgaData, tgaWidth, tgaHeight);
         }
 
-        public void SaveGPF(Stream gpfStream)
+        public bool SaveGPF(Stream gpfStream)
         {
-            using BinaryWriter writer = new(gpfStream, System.Text.Encoding.Unicode);
-            // Write number of CharGrid entries
-            writer.Write(CharGrid.CharTable.Count);
-
-            // Write CharGrid row height
-            writer.Write(CharGrid.RowHeight);
-
-            // Write TGA width and height
-            writer.Write(FontImage.Width);
-            writer.Write(FontImage.Height);
-
-            // Write CharGrid entries
-            foreach (var entry in CharGrid.CharTable)
+            if(FontImage != null)
             {
-                writer.Write(entry.Symbol);
-                writer.Write(entry.Width);
+                using BinaryWriter writer = new(gpfStream, System.Text.Encoding.Unicode);
+                // Write number of CharGrid entries
+                writer.Write(CharGrid.CharTable.Count);
+
+                // Write CharGrid row height
+                writer.Write(CharGrid.RowHeight);
+
+                // Write TGA width and height
+                writer.Write(FontImage.Width);
+                writer.Write(FontImage.Height);
+
+                // Write CharGrid entries
+                foreach (var entry in CharGrid.CharTable)
+                {
+                    writer.Write(entry.Symbol);
+                    writer.Write(entry.Width);
+                }
+
+                // Write TGA image data
+                FontImage.ProcessPixelRows(accessor =>
+                {
+                    for (var y = 0; y < FontImage.Height; y++)
+                    {
+                        Span<L8> pixelRow = accessor.GetRowSpan(y);
+
+                        Span<byte> byteSpan = MemoryMarshal.AsBytes(pixelRow);
+
+                        writer.Write(byteSpan.ToArray());
+                    }
+                });
+
+                return true;
             }
 
-            // Write TGA image data
-            FontImage.ProcessPixelRows(accessor =>
-            {
-                for (var y = 0; y < FontImage.Height; y++)
-                {
-                    Span<L8> pixelRow = accessor.GetRowSpan(y);
-
-                    Span<byte> byteSpan = MemoryMarshal.AsBytes(pixelRow);
-
-                    writer.Write(byteSpan.ToArray());
-                }
-            });
+            return false;
         }
 
         public void ImportImage(Stream stream, bool autoScale = false)
@@ -247,11 +285,13 @@ namespace GPF_Editor
             byte[] scaleBytes = BitConverter.GetBytes(ScaleFactor);
             string scaleString = "0x" + string.Join(", 0x", scaleBytes.Select(b => b.ToString("X")));
 
+            string texResString = FontImage != null ? FontImage.Width.ToString() : DefaultResolution.ToString();
+
             var parser = new FileIniDataParser();
             IniData data = new();
 
-            data["offset1"]["name"] = FontImage.Width.ToString() + " Fonts";
-            data["offset1"]["description"] = FontImage.Width.ToString() + "x" + FontImage.Height.ToString() + " GPF Fonts";
+            data["offset1"]["name"] = texResString + " Fonts";
+            data["offset1"]["description"] = texResString + "x" + texResString + " GPF Fonts";
             data["offset1"]["author"] = "GPF Font Editor";
             data["offset1"]["address"] = "0x" + ScalingAddress.ToString("X8");
             data["offset1"]["format"] = "float";

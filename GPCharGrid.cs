@@ -7,11 +7,11 @@ namespace GPF_Editor
 {
     public class GPCharGrid: INotifyPropertyChanged
     {
-        private short _rowHeight;
 
         // Propery Changed Event
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        private short _rowHeight;
         public short RowHeight
         {
             get => _rowHeight;
@@ -34,7 +34,7 @@ namespace GPF_Editor
 
         // OnPropertyChanged method (from INotifyPropertyChanged) to raise the event
         // The calling member's name will be used as the parameter.
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
@@ -101,7 +101,7 @@ namespace GPF_Editor
 
         // OnPropertyChanged method (from INotifyPropertyChanged) to raise the event
         // The calling member's name will be used as the parameter.
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
@@ -123,7 +123,7 @@ namespace GPF_Editor
             }
         }
 
-        private void FullObservableCollectionCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void FullObservableCollectionCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.NewItems != null)
             {
@@ -141,7 +141,7 @@ namespace GPF_Editor
             }
         }
 
-        private void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void ItemPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             NotifyCollectionChangedEventArgs args = new(NotifyCollectionChangedAction.Replace, sender, sender, IndexOf((T)sender));
             OnCollectionChanged(args);

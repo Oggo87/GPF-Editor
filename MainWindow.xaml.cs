@@ -9,7 +9,7 @@ namespace GPF_Editor
     public partial class MainWindow : Window
     {
 
-        GPFont GpFont = new();
+        private static readonly GPFont GpFont = new();
 
         public MainWindow()
         {
@@ -93,7 +93,7 @@ namespace GPF_Editor
             };
             if (savePatch.ShowDialog() == true)
             {
-                string savePath = System.IO.Path.GetDirectoryName(savePatch.FileName);
+                string savePath = System.IO.Path.GetDirectoryName(savePatch.FileName) ?? "";
                 GpFont.ExportPatchFiles(savePath);
 
             }
