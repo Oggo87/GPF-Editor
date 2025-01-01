@@ -6,12 +6,12 @@ namespace GPF_Editor
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class GPFEditor : Window
     {
 
         private static readonly GPFont GpFont = new();
 
-        public MainWindow()
+        public GPFEditor()
         {
             InitializeComponent();
 
