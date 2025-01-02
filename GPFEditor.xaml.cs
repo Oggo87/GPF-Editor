@@ -21,6 +21,15 @@ namespace GPF_Editor
 
         }
 
+        //Force minimum size of the window
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            MinWidth = ActualWidth;
+            MinHeight = ActualHeight;
+            ClearValue(SizeToContentProperty);
+        }
+
         private void BtnOpenTGA_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openTga = new()

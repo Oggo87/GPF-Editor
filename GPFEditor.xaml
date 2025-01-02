@@ -5,16 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GPF_Editor"
         mc:Ignorable="d"
-        Title="GPF Editor" Height="440" Width="670" MinHeight="440" MinWidth="670">
-    <Grid Margin="0,0,0,0">
+        Title="GPF Editor" Height="auto" Width="auto" MinHeight="420" MinWidth="670" SizeToContent="WidthAndHeight">
+    <Grid Margin="0,0,0,0" MinHeight="420" MinWidth="670">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="420*" MinWidth="420"/>
-            <ColumnDefinition Width="125*"/>
-            <ColumnDefinition Width="125*"/>
+            <ColumnDefinition Width="125*" MinWidth="125"/>
+            <ColumnDefinition Width="125*" MinWidth="125"/>
         </Grid.ColumnDefinitions>
 
         <Image x:Name="GpfImage" Margin="10,10,10,10"/>
-        
+
         <Button x:Name="BtnOpenGPF" Content="Open GPF" Width="110" Height="30" Margin="0,10,5,0" VerticalAlignment="Top" Click="BtnOpenGPF_Click" Grid.Column="1" HorizontalAlignment="Right"/>
         <Button x:Name="BtnSaveGPF" Content="Save GPF" Width="110" Height="30" Margin="5,10,0,0" VerticalAlignment="Top" Click="BtnSaveGPF_Click" IsEnabled="{Binding SaveEnabled}" Grid.Column="2" HorizontalAlignment="Left"/>
         <Button x:Name="BtnOpenTGA" Content="Open TGA" Width="110" Height="30" Margin="0,45,5,0" VerticalAlignment="Top" Click="BtnOpenTGA_Click" Grid.Column="1" HorizontalAlignment="Right"/>
@@ -28,7 +28,7 @@
 
         <TextBox x:Name="TxtRowHeight" Margin="110,141,20,0" TextWrapping="Wrap" Text="{Binding CharGrid.RowHeight, Mode = TwoWay}" VerticalAlignment="Top" Grid.Column="1" Grid.ColumnSpan="2" Height="18"/>
 
-        <DataGrid x:Name="CharTableDataGrid" Margin="20,168,20,20" ItemsSource="{Binding CharGrid.CharTable}" Grid.Column="1" Grid.ColumnSpan="2"/>
+        <DataGrid x:Name="CharTableDataGrid" Margin="20,168,20,20" ItemsSource="{Binding CharGrid.CharTable}" Grid.Column="1" Grid.ColumnSpan="2" CanUserSortColumns="False" RowHeaderWidth="20"/>
 
     </Grid>
 </Window>
