@@ -1,17 +1,16 @@
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp;
-using System.Windows.Media.Imaging;
-using System.Windows.Media;
-using System.Windows;
-using System.IO;
-using System.Runtime.InteropServices;
-using IniParser.Model;
 using IniParser;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using IniParser.Model;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using System.ComponentModel;
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Point = SixLabors.ImageSharp.Point;
-using System.Collections.Specialized;
 
 namespace GPF_Editor
 {
@@ -23,14 +22,14 @@ namespace GPF_Editor
         private Image<L8>? _fontImage;
 
         public Image<L8>? FontImage
-        { 
+        {
             get => _fontImage;
 
             set
             {
                 _fontImage = value;
 
-                if(_fontImage != null)
+                if (_fontImage != null)
                 {
                     ScaleFactor = DefaultScaling * DefaultResolution / _fontImage.Width;
                     SaveEnabled = true;
@@ -40,9 +39,9 @@ namespace GPF_Editor
                     ScaleFactor = DefaultScaling;
                     SaveEnabled = false;
                 }
-            } 
+            }
         }
-        public GPCharGrid CharGrid{ get; set; }
+        public GPCharGrid CharGrid { get; set; }
 
         private int DefaultResolution { get; } = 256;
 
@@ -67,15 +66,13 @@ namespace GPF_Editor
         {
             CharGrid = new GPCharGrid();
             ScaleFactor = DefaultScaling;
-            CharGrid.CharTable.CollectionChanged += CharTable_CollectionChanged;
-        }
-
-        private void CharTable_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (FontImage != null)
+            CharGrid.CharTable.CollectionChanged += (sender, e) =>
             {
-                CharGrid.UpdateGridImage(FontImage.Width);
-            }
+                if (FontImage != null)
+                {
+                    CharGrid.UpdateGridImage(FontImage.Width);
+                }
+            };
         }
 
         // OnPropertyChanged method (from INotifyPropertyChanged) to raise the event
@@ -89,10 +86,10 @@ namespace GPF_Editor
         {
 
             WriteableBitmap? bmp = null;
-                
-            if(FontImage != null)
+
+            if (FontImage != null)
             {
-                CharGrid.UpdateGridImage(FontImage.Width);
+                //CharGrid.UpdateGridImage(FontImage.Width);
 
                 Image<Rgba32> outputImage;
 
@@ -103,7 +100,7 @@ namespace GPF_Editor
                     // take the 2 source images and draw them on top of each other
                     outputImage.Mutate(o => o
                         .DrawImage(FontImage, new Point(0, 0), 1f)
-                        .DrawImage(CharGrid.GridImage, new Point(0, 0), 1f)
+                        .DrawImage(CharGrid.GridImage, new Point(0, 0), PixelColorBlendingMode.Add, 1f)
                     );
                 }
                 else
@@ -178,7 +175,7 @@ namespace GPF_Editor
 
         public bool SaveGPF(Stream gpfStream)
         {
-            if(FontImage != null)
+            if (FontImage != null)
             {
                 using BinaryWriter writer = new(gpfStream, System.Text.Encoding.Unicode);
                 // Write number of CharGrid entries
@@ -223,7 +220,7 @@ namespace GPF_Editor
         }
 
         public void ImportImage(Image<L8> image, bool autoScale = false)
-        { 
+        {
             int currentResolution = FontImage?.Width ?? DefaultResolution;
 
             if (autoScale)
@@ -273,7 +270,7 @@ namespace GPF_Editor
             capWriter.Write("%GP4EXE".ToCharArray());
 
             //zero fill
-            for (var i = 0; i< 0x79; i++)
+            for (var i = 0; i < 0x79; i++)
             {
                 capWriter.Write((byte)0);
             }

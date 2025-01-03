@@ -30,7 +30,7 @@
 
         <TextBox x:Name="TxtRowHeight" Margin="109,163,20,0" TextWrapping="Wrap" Text="{Binding CharGrid.RowHeight, Mode = TwoWay}" VerticalAlignment="Top" Grid.Column="1" Grid.ColumnSpan="2" Height="18"/>
 
-        <DataGrid x:Name="CharTableDataGrid" Margin="20,190,20,20" ItemsSource="{Binding CharGrid.CharTable}" Grid.Column="1" Grid.ColumnSpan="2" CanUserSortColumns="False" RowHeaderWidth="20"/>
+        <DataGrid x:Name="CharTableDataGrid" Margin="20,190,20,20" ItemsSource="{Binding CharGrid.CharTable}" Grid.Column="1" Grid.ColumnSpan="2" RowHeaderWidth="20" SelectionMode="Single" CanUserSortColumns="False" SelectionChanged="CharTableDataGrid_SelectionChanged"/>
 
 
     </Grid>

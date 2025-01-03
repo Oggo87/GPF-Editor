@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System.Windows;
+using System.Windows.Data;
 
 namespace GPF_Editor
 {
@@ -18,6 +19,15 @@ namespace GPF_Editor
             DataContext = GpFont;
 
             CharTableDataGrid.ItemsSource = GpFont.CharGrid.CharTable;
+
+            GpFont.CharGrid.CharTable.CollectionChanged += (sender, e) =>
+            {
+                if (GpFont.FontImage != null)
+                {
+                    GpFont.CharGrid.UpdateGridImage(GpFont.FontImage.Width);
+                    GpfImage.Source = GpFont.GetBMP(ChkBoxShowGrid.IsChecked ?? false);
+                }
+            };
 
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 
@@ -104,7 +114,7 @@ namespace GPF_Editor
         {
             SaveFileDialog savePatch = new()
             {
-                Filter = "Directory | directory",
+                Filter = "Directory|directory",
                 FileName = "patch files"
             };
             if (savePatch.ShowDialog() == true)
@@ -117,8 +127,20 @@ namespace GPF_Editor
 
         private void ChkBoxShowGrid_Changed(object sender, RoutedEventArgs e)
         {
-            if(GpFont.FontImage != null)
+            if (GpFont.FontImage != null)
             {
+                GpfImage.Source = GpFont.GetBMP(ChkBoxShowGrid.IsChecked ?? false);
+            }
+        }
+
+        private void CharTableDataGrid_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            var selectedEntry = CharTableDataGrid.SelectedItem;
+
+            if (selectedEntry != CollectionView.NewItemPlaceholder && GpFont.FontImage != null)
+            {
+                GpFont.CharGrid.UpdateGridImage(GpFont.FontImage.Width, (CharTableEntry)selectedEntry);
+
                 GpfImage.Source = GpFont.GetBMP(ChkBoxShowGrid.IsChecked ?? false);
             }
         }

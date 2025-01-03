@@ -1,5 +1,4 @@
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -10,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace GPF_Editor
 {
-    public class GPCharGrid: INotifyPropertyChanged
+    public class GPCharGrid : INotifyPropertyChanged
     {
 
         public Image? GridImage = null;
@@ -39,7 +38,7 @@ namespace GPF_Editor
             CharTable = [];
         }
 
-        public void UpdateGridImage(int size)
+        public void UpdateGridImage(int size, CharTableEntry? selectedEntry = null)
         {
             GridImage = new Image<Rgba32>(size, size);
 
@@ -49,22 +48,26 @@ namespace GPF_Editor
 
             PointF[] points;
 
+            //RectangleF rectangle = new(currentColumn, currentRow, 150, 150);
+            //GridImage.Mutate(x => x.Fill(Color.Red, rectangle));
+
+            // Draw the first row
+            points =
+            [
+            new PointF(0, currentRow),
+            new PointF(size, currentRow),
+            ];
+
+            GridImage.Mutate(x => x.DrawLine(Pens.Solid(Color.Red, 1), points));
+
             foreach (var entry in CharTable)
             {
-                // Draw the first row
-                points =
-                [
-                new PointF(0, currentRow),
-                new PointF(size, currentRow),
-                ];
-
-                GridImage.Mutate(x => x.DrawLine(Pens.Solid(Color.Red, 1), points));
 
                 if ((currentColumn += entry.Width) >= size)
                 {
                     currentColumn = entry.Width;
                     currentRow += RowHeight;
-                    
+
                     points =
                     [
                     new PointF(0, currentRow),
@@ -73,6 +76,18 @@ namespace GPF_Editor
 
                     GridImage.Mutate(x => x.DrawLine(Pens.Solid(Color.Red, 1), points));
 
+                }
+
+                if (entry == selectedEntry)
+                {
+
+                    RectangleF rectangle = new(currentColumn - entry.Width, currentRow, entry.Width, RowHeight);
+
+                    Color color = Color.Red;
+
+                    color.WithAlpha(0.5f);
+
+                    GridImage.Mutate(x => x.Fill(color, rectangle));
                 }
 
                 points =
@@ -117,7 +132,7 @@ namespace GPF_Editor
         }
     }
 
-    public class CharTableEntry: INotifyPropertyChanged
+    public class CharTableEntry : INotifyPropertyChanged
     {
         private short _width;
         private char _symbol;
