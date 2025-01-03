@@ -1,3 +1,8 @@
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing;
+using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -7,6 +12,8 @@ namespace GPF_Editor
 {
     public class GPCharGrid: INotifyPropertyChanged
     {
+
+        public Image? GridImage = null;
 
         // Propery Changed Event
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -30,6 +37,66 @@ namespace GPF_Editor
         public GPCharGrid()
         {
             CharTable = [];
+        }
+
+        public void UpdateGridImage(int size)
+        {
+            GridImage = new Image<Rgba32>(size, size);
+
+            int currentRow = 0;
+
+            int currentColumn = 0;
+
+            PointF[] points;
+
+            foreach (var entry in CharTable)
+            {
+                // Draw the first row
+                points =
+                [
+                new PointF(0, currentRow),
+                new PointF(size, currentRow),
+                ];
+
+                GridImage.Mutate(x => x.DrawLine(Pens.Solid(Color.Red, 1), points));
+
+                if ((currentColumn += entry.Width) >= size)
+                {
+                    currentColumn = entry.Width;
+                    currentRow += RowHeight;
+                    
+                    points =
+                    [
+                    new PointF(0, currentRow),
+                    new PointF(size, currentRow),
+                    ];
+
+                    GridImage.Mutate(x => x.DrawLine(Pens.Solid(Color.Red, 1), points));
+
+                }
+
+                points =
+                [
+                new PointF(currentColumn, currentRow),
+                new PointF(currentColumn, currentRow + RowHeight),
+                ];
+
+                GridImage.Mutate(x => x.DrawLine(Pens.Solid(Color.Red, 1), points));
+
+            }
+
+            // Draw the last row
+            currentRow += RowHeight;
+
+            points =
+            [
+                new PointF(0, currentRow),
+                new PointF(size, currentRow),
+            ];
+
+            GridImage.Mutate(x => x.DrawLine(Pens.Solid(Color.Red, 1), points));
+
+
         }
 
         // OnPropertyChanged method (from INotifyPropertyChanged) to raise the event

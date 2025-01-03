@@ -19,16 +19,19 @@
         <Button x:Name="BtnSaveGPF" Content="Save GPF" Width="110" Height="30" Margin="5,10,0,0" VerticalAlignment="Top" Click="BtnSaveGPF_Click" IsEnabled="{Binding SaveEnabled}" Grid.Column="2" HorizontalAlignment="Left"/>
         <Button x:Name="BtnOpenTGA" Content="Open TGA" Width="110" Height="30" Margin="0,45,5,0" VerticalAlignment="Top" Click="BtnOpenTGA_Click" Grid.Column="1" HorizontalAlignment="Right"/>
         <Button x:Name="BtnSaveTGA" Content="Save TGA" Width="110" Height="30" Margin="5,45,0,0" VerticalAlignment="Top" Click="BtnSaveTGA_Click" IsEnabled="{Binding SaveEnabled}" Grid.Column="2" HorizontalAlignment="Left"/>
-        
+
         <Button x:Name="BtnExportPatch" Content="Export Patch Files" HorizontalAlignment="Center" Height="30" Margin="0,80,0,0" VerticalAlignment="Top" Width="110" Click="BtnExportPatch_Click" IsEnabled="{Binding SaveEnabled}" Grid.Column="1" Grid.ColumnSpan="2"/>
 
         <GroupBox x:Name="GrpBoxCharGrid" Grid.Column="1" Grid.ColumnSpan="2" Header="Char Grid" Margin="10,115,10,10"/>
 
-        <Label x:Name="LblRowHeight" Content="Row Height" HorizontalAlignment="Left" Margin="20,137,0,0" VerticalAlignment="Top" Width="84" Grid.Column="1" Height="26"/>
+        <CheckBox x:Name="ChkBoxShowGrid" Content="Show Grid" HorizontalAlignment="Left" Margin="20,139,0,0" VerticalAlignment="Top" Grid.Column="1" Checked="ChkBoxShowGrid_Changed" Unchecked="ChkBoxShowGrid_Changed"/>
+        
+        <Label x:Name="LblRowHeight" Content="Row Height" HorizontalAlignment="Left" Margin="20,159,0,0" VerticalAlignment="Top" Width="84" Grid.Column="1" Height="26"/>
 
-        <TextBox x:Name="TxtRowHeight" Margin="110,141,20,0" TextWrapping="Wrap" Text="{Binding CharGrid.RowHeight, Mode = TwoWay}" VerticalAlignment="Top" Grid.Column="1" Grid.ColumnSpan="2" Height="18"/>
+        <TextBox x:Name="TxtRowHeight" Margin="109,163,20,0" TextWrapping="Wrap" Text="{Binding CharGrid.RowHeight, Mode = TwoWay}" VerticalAlignment="Top" Grid.Column="1" Grid.ColumnSpan="2" Height="18"/>
 
-        <DataGrid x:Name="CharTableDataGrid" Margin="20,168,20,20" ItemsSource="{Binding CharGrid.CharTable}" Grid.Column="1" Grid.ColumnSpan="2" CanUserSortColumns="False" RowHeaderWidth="20"/>
+        <DataGrid x:Name="CharTableDataGrid" Margin="20,190,20,20" ItemsSource="{Binding CharGrid.CharTable}" Grid.Column="1" Grid.ColumnSpan="2" CanUserSortColumns="False" RowHeaderWidth="20"/>
+
 
     </Grid>
 </Window>

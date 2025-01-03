@@ -9,6 +9,9 @@ using IniParser.Model;
 using IniParser;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using SixLabors.ImageSharp.Processing;
+using Point = SixLabors.ImageSharp.Point;
+using System.Collections.Specialized;
 
 namespace GPF_Editor
 {
@@ -39,7 +42,7 @@ namespace GPF_Editor
                 }
             } 
         }
-        public GPCharGrid CharGrid { get; set; }
+        public GPCharGrid CharGrid{ get; set; }
 
         private int DefaultResolution { get; } = 256;
 
@@ -64,6 +67,15 @@ namespace GPF_Editor
         {
             CharGrid = new GPCharGrid();
             ScaleFactor = DefaultScaling;
+            CharGrid.CharTable.CollectionChanged += CharTable_CollectionChanged;
+        }
+
+        private void CharTable_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (FontImage != null)
+            {
+                CharGrid.UpdateGridImage(FontImage.Width);
+            }
         }
 
         // OnPropertyChanged method (from INotifyPropertyChanged) to raise the event
@@ -73,32 +85,50 @@ namespace GPF_Editor
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public WriteableBitmap? GetBMP()
+        public WriteableBitmap? GetBMP(bool showGrid)
         {
 
             WriteableBitmap? bmp = null;
                 
             if(FontImage != null)
             {
-                bmp = new WriteableBitmap(FontImage.Width, FontImage.Height, FontImage.Metadata.HorizontalResolution, FontImage.Metadata.VerticalResolution, PixelFormats.Bgra32, null);
+                CharGrid.UpdateGridImage(FontImage.Width);
+
+                Image<Rgba32> outputImage;
+
+                if (showGrid && CharGrid.GridImage != null)
+                {
+                    outputImage = new(FontImage.Width, FontImage.Height);
+
+                    // take the 2 source images and draw them on top of each other
+                    outputImage.Mutate(o => o
+                        .DrawImage(FontImage, new Point(0, 0), 1f)
+                        .DrawImage(CharGrid.GridImage, new Point(0, 0), 1f)
+                    );
+                }
+                else
+                {
+                    outputImage = FontImage.CloneAs<Rgba32>();
+                }
+
+                bmp = new WriteableBitmap(outputImage.Width, outputImage.Height, outputImage.Metadata.HorizontalResolution, outputImage.Metadata.VerticalResolution, PixelFormats.Bgra32, null);
 
                 bmp.Lock();
                 try
                 {
 
-                    FontImage.ProcessPixelRows(accessor =>
+                    outputImage.ProcessPixelRows(accessor =>
                     {
                         var backBuffer = bmp.BackBuffer;
 
-                        for (var y = 0; y < FontImage.Height; y++)
+                        for (var y = 0; y < outputImage.Height; y++)
                         {
-                            Span<L8> pixelRow = accessor.GetRowSpan(y);
+                            Span<Rgba32> pixelRow = accessor.GetRowSpan(y);
 
                             for (var x = 0; x < FontImage.Width; x++)
                             {
                                 var backBufferPos = backBuffer + (y * FontImage.Width + x) * 4;
-                                Rgba32 rgba = new();
-                                rgba.FromL8(pixelRow[x]);
+                                Rgba32 rgba = pixelRow[x];
                                 var color = rgba.A << 24 | rgba.R << 16 | rgba.G << 8 | rgba.B;
 
                                 Marshal.WriteInt32(backBufferPos, color);

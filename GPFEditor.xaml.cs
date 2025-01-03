@@ -21,8 +21,10 @@ namespace GPF_Editor
 
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 
-            if(version != null)
+            if (version != null)
+            {
                 Title += " v" + version.Major + "." + version.Minor;
+            }
 
         }
 
@@ -49,12 +51,12 @@ namespace GPF_Editor
 
                 if (GpFont.FontImage != null)
                 {
-                    var autoScaleMsgBoxRslt = MessageBox.Show("Auto-scale?", "Auto-scale", MessageBoxButton.YesNo);
+                    var autoScaleMsgBoxRslt = MessageBox.Show("Would you like to automatically scale the currently loaded character grid to fit the resolution of the new texture?", "Auto-scale", MessageBoxButton.YesNo);
                     autoScale = autoScaleMsgBoxRslt == MessageBoxResult.Yes;
                 }
 
                 GpFont.ImportImage(tgaStream, autoScale);
-                GpfImage.Source = GpFont.GetBMP();
+                GpfImage.Source = GpFont.GetBMP(ChkBoxShowGrid.IsChecked ?? false);
             }
         }
 
@@ -68,7 +70,7 @@ namespace GPF_Editor
             {
                 using var gpfStream = openGPF.OpenFile();
                 GpFont.LoadGPF(gpfStream);
-                GpfImage.Source = GpFont.GetBMP();
+                GpfImage.Source = GpFont.GetBMP(ChkBoxShowGrid.IsChecked ?? false);
             }
         }
 
@@ -110,6 +112,14 @@ namespace GPF_Editor
                 string savePath = System.IO.Path.GetDirectoryName(savePatch.FileName) ?? "";
                 GpFont.ExportPatchFiles(savePath);
 
+            }
+        }
+
+        private void ChkBoxShowGrid_Changed(object sender, RoutedEventArgs e)
+        {
+            if(GpFont.FontImage != null)
+            {
+                GpfImage.Source = GpFont.GetBMP(ChkBoxShowGrid.IsChecked ?? false);
             }
         }
     }
