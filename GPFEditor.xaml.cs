@@ -19,6 +19,11 @@ namespace GPF_Editor
 
             CharTableDataGrid.ItemsSource = GpFont.CharGrid.CharTable;
 
+            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+
+            if(version != null)
+                Title += " v" + version.Major + "." + version.Minor;
+
         }
 
         //Force minimum size of the window
