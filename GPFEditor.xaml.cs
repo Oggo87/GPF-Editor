@@ -106,7 +106,7 @@ namespace GPF_Editor
             if (saveGpf.ShowDialog() == true)
             {
                 using var gpfStream = saveGpf.OpenFile();
-                GpFont.SaveGPF(gpfStream);
+                _ = GpFont.SaveGPF(gpfStream);
             }
         }
 
@@ -143,6 +143,15 @@ namespace GPF_Editor
 
                 GpfImage.Source = GpFont.GetBMP(ChkBoxShowGrid.IsChecked ?? false);
             }
+        }
+
+        private void MenuItem_About_Click(object sender, RoutedEventArgs e)
+        {
+            AboutDialog aboutDialog = new()
+            {
+                Owner = this
+            };
+            aboutDialog.ShowDialog();
         }
     }
 }

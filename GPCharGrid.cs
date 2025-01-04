@@ -83,11 +83,7 @@ namespace GPF_Editor
 
                     RectangleF rectangle = new(currentColumn - entry.Width, currentRow, entry.Width, RowHeight);
 
-                    Color color = Color.Red;
-
-                    color.WithAlpha(0.5f);
-
-                    GridImage.Mutate(x => x.Fill(color, rectangle));
+                    GridImage.Mutate(x => x.Fill(Color.Red, rectangle));
                 }
 
                 points =

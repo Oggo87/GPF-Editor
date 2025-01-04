@@ -89,8 +89,6 @@ namespace GPF_Editor
 
             if (FontImage != null)
             {
-                //CharGrid.UpdateGridImage(FontImage.Width);
-
                 Image<Rgba32> outputImage;
 
                 if (showGrid && CharGrid.GridImage != null)
@@ -124,9 +122,9 @@ namespace GPF_Editor
 
                             for (var x = 0; x < FontImage.Width; x++)
                             {
-                                var backBufferPos = backBuffer + (y * FontImage.Width + x) * 4;
+                                var backBufferPos = backBuffer + (((y * FontImage.Width) + x) * 4);
                                 Rgba32 rgba = pixelRow[x];
-                                var color = rgba.A << 24 | rgba.R << 16 | rgba.G << 8 | rgba.B;
+                                var color = (rgba.A << 24) | (rgba.R << 16) | (rgba.G << 8) | rgba.B;
 
                                 Marshal.WriteInt32(backBufferPos, color);
                             }
@@ -171,6 +169,8 @@ namespace GPF_Editor
             // Read TGA image data
             byte[] tgaData = reader.ReadBytes(tgaWidth * tgaHeight);
             FontImage = Image.LoadPixelData<L8>(tgaData, tgaWidth, tgaHeight);
+
+            CharGrid.UpdateGridImage(tgaWidth);
         }
 
         public bool SaveGPF(Stream gpfStream)
