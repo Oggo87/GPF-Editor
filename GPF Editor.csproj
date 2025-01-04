@@ -27,7 +27,9 @@
 
   <ItemGroup>
     <Resource Include="GPFEditor.ico" />
-    <Resource Include="GPFEditor.png" />
+    <Resource Include="GPFEditor.png">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>

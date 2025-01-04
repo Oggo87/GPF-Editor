@@ -13,9 +13,21 @@ namespace GPF_Editor
         {
             InitializeComponent();
             VersionLabel.Content = Assembly.GetExecutingAssembly().GetName().Version;
-            var versionInfo = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location);
-            AuthorLabel.Content = versionInfo.CompanyName;
-            CopyrightLabel.Content = versionInfo.LegalCopyright;
+
+            var attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCompanyAttribute), false);
+
+            if (attributes.Length > 0)
+            {
+                AuthorLabel.Content = ((AssemblyCompanyAttribute)attributes[0]).Company;
+            }
+
+            attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false);
+
+            if (attributes.Length > 0)
+            {
+                CopyrightLabel.Content = ((AssemblyCopyrightAttribute)attributes[0]).Copyright;
+            }
+
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
         }
 
