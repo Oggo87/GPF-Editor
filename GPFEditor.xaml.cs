@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Input;
 
 namespace GPF_Editor
 {
@@ -22,11 +23,7 @@ namespace GPF_Editor
 
             GpFont.CharGrid.CharTable.CollectionChanged += (sender, e) =>
             {
-                if (GpFont.FontImage != null)
-                {
-                    GpFont.CharGrid.UpdateGridImage(GpFont.FontImage.Width);
-                    GpfImage.Source = GpFont.GetBMP(ChkBoxShowGrid.IsChecked ?? false);
-                }
+                GpFont.RefreshImage();
             };
 
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
@@ -45,6 +42,31 @@ namespace GPF_Editor
             MinWidth = ActualWidth;
             MinHeight = ActualHeight;
             ClearValue(SizeToContentProperty);
+        }
+        private void OpenCommand_Executed(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openGPF = new()
+            {
+                Filter = "GPF Font|*.gpf"
+            };
+            if (openGPF.ShowDialog() == true)
+            {
+                using var gpfStream = openGPF.OpenFile();
+                GpFont.LoadGPF(gpfStream);
+            }
+        }
+
+        private void SaveCommand_Executed(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog saveGpf = new()
+            {
+                Filter = "GPF Font|*.gpf"
+            };
+            if (saveGpf.ShowDialog() == true)
+            {
+                using var gpfStream = saveGpf.OpenFile();
+                _ = GpFont.SaveGPF(gpfStream);
+            }
         }
 
         private void BtnOpenTGA_Click(object sender, RoutedEventArgs e)
@@ -66,21 +88,6 @@ namespace GPF_Editor
                 }
 
                 GpFont.ImportImage(tgaStream, autoScale);
-                GpfImage.Source = GpFont.GetBMP(ChkBoxShowGrid.IsChecked ?? false);
-            }
-        }
-
-        private void BtnOpenGPF_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openGPF = new()
-            {
-                Filter = "GPF Font|*.gpf"
-            };
-            if (openGPF.ShowDialog() == true)
-            {
-                using var gpfStream = openGPF.OpenFile();
-                GpFont.LoadGPF(gpfStream);
-                GpfImage.Source = GpFont.GetBMP(ChkBoxShowGrid.IsChecked ?? false);
             }
         }
 
@@ -94,19 +101,6 @@ namespace GPF_Editor
             {
                 using var tgaStream = saveTga.OpenFile();
                 GpFont.ExportTga(tgaStream);
-            }
-        }
-
-        private void BtnSaveGPF_Click(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog saveGpf = new()
-            {
-                Filter = "GPF Font|*.gpf"
-            };
-            if (saveGpf.ShowDialog() == true)
-            {
-                using var gpfStream = saveGpf.OpenFile();
-                _ = GpFont.SaveGPF(gpfStream);
             }
         }
 
@@ -125,26 +119,6 @@ namespace GPF_Editor
             }
         }
 
-        private void ChkBoxShowGrid_Changed(object sender, RoutedEventArgs e)
-        {
-            if (GpFont.FontImage != null)
-            {
-                GpfImage.Source = GpFont.GetBMP(ChkBoxShowGrid.IsChecked ?? false);
-            }
-        }
-
-        private void CharTableDataGrid_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            var selectedEntry = CharTableDataGrid.SelectedItem;
-
-            if (selectedEntry != CollectionView.NewItemPlaceholder && GpFont.FontImage != null)
-            {
-                GpFont.CharGrid.UpdateGridImage(GpFont.FontImage.Width, (CharTableEntry)selectedEntry);
-
-                GpfImage.Source = GpFont.GetBMP(ChkBoxShowGrid.IsChecked ?? false);
-            }
-        }
-
         private void MenuItem_About_Click(object sender, RoutedEventArgs e)
         {
             AboutDialog aboutDialog = new()
@@ -152,6 +126,26 @@ namespace GPF_Editor
                 Owner = this
             };
             aboutDialog.ShowDialog();
+        }
+
+        private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void CloseCommand_Executed(object sender, RoutedEventArgs e)
+        {
+            GpFont.Clear();
+        }
+
+        private void CharTableDataGrid_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            var selectedEntry = CharTableDataGrid.SelectedItem;
+
+            if (selectedEntry != CollectionView.NewItemPlaceholder)
+            {
+                GpFont.SelectEntry((CharTableEntry)selectedEntry);
+            }
         }
     }
 }

@@ -32,13 +32,26 @@ namespace GPF_Editor
                 if (_fontImage != null)
                 {
                     ScaleFactor = DefaultScaling * DefaultResolution / _fontImage.Width;
+                    FontBMP = GetBMP();
                     SaveEnabled = true;
                 }
                 else
                 {
                     ScaleFactor = DefaultScaling;
+                    FontBMP = null;
                     SaveEnabled = false;
                 }
+            }
+        }
+
+        private ImageSource? _fontBMP;
+        public ImageSource? FontBMP
+        {
+            get => _fontBMP;
+            private set
+            {
+                _fontBMP = value;
+                OnPropertyChanged();
             }
         }
         public GPCharGrid CharGrid { get; set; }
@@ -50,6 +63,18 @@ namespace GPF_Editor
         private int ScalingAddress { get; } = 0x001fa0c8;
 
         public float ScaleFactor { get; private set; }
+
+        private bool _showGrid;
+        public bool ShowGrid
+        {
+            get => _showGrid;
+            set
+            {
+                _showGrid = value;
+                FontBMP = GetBMP();
+                OnPropertyChanged();
+            }
+        }
 
         private bool _saveEnabled;
         public bool SaveEnabled
@@ -82,7 +107,7 @@ namespace GPF_Editor
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public WriteableBitmap? GetBMP(bool showGrid)
+        private WriteableBitmap? GetBMP()
         {
 
             WriteableBitmap? bmp = null;
@@ -91,7 +116,7 @@ namespace GPF_Editor
             {
                 Image<Rgba32> outputImage;
 
-                if (showGrid && CharGrid.GridImage != null)
+                if (ShowGrid && CharGrid.GridImage != null)
                 {
                     outputImage = new(FontImage.Width, FontImage.Height);
 
@@ -171,6 +196,7 @@ namespace GPF_Editor
             FontImage = Image.LoadPixelData<L8>(tgaData, tgaWidth, tgaHeight);
 
             CharGrid.UpdateGridImage(tgaWidth);
+            RefreshImage();
         }
 
         public bool SaveGPF(Stream gpfStream)
@@ -325,6 +351,27 @@ namespace GPF_Editor
             data["offset1"]["skipoffset"] = "0";
 
             parser.WriteFile(targetFile, data);
+        }
+
+        public void RefreshImage()
+        {
+            FontBMP = GetBMP();
+        }
+
+        public void SelectEntry(CharTableEntry selectedEntry)
+        {
+            if (FontImage != null)
+            {
+                CharGrid.UpdateGridImage(FontImage.Width, selectedEntry);
+            }
+            RefreshImage();
+        }
+
+        public void Clear()
+        {
+            FontImage = null;
+            CharGrid.CharTable.Clear();
+
         }
     }
 }
