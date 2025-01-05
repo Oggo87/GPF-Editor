@@ -1,7 +1,6 @@
 ﻿using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Input;
 
 namespace GPF_Editor
 {
@@ -69,7 +68,7 @@ namespace GPF_Editor
             }
         }
 
-        private void BtnOpenTGA_Click(object sender, RoutedEventArgs e)
+        private void MenuImportTGA_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openTga = new()
             {
@@ -91,7 +90,7 @@ namespace GPF_Editor
             }
         }
 
-        private void BtnSaveTGA_Click(object sender, RoutedEventArgs e)
+        private void MenuExportTGA_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog saveTga = new()
             {
@@ -104,7 +103,7 @@ namespace GPF_Editor
             }
         }
 
-        private void BtnExportPatch_Click(object sender, RoutedEventArgs e)
+        private void MenuExportPatch_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog savePatch = new()
             {
@@ -119,16 +118,16 @@ namespace GPF_Editor
             }
         }
 
-        private void MenuItem_About_Click(object sender, RoutedEventArgs e)
+        private void MenuAbout_Click(object sender, RoutedEventArgs e)
         {
             AboutDialog aboutDialog = new()
             {
                 Owner = this
             };
-            aboutDialog.ShowDialog();
+            _ = aboutDialog.ShowDialog();
         }
 
-        private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
+        private void MenuExit_Click(object sender, RoutedEventArgs e)
         {
             Close();
         }

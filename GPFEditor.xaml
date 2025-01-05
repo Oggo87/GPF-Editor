@@ -28,20 +28,20 @@
         <Menu Height="22" VerticalAlignment="Top" Grid.ColumnSpan="3">
             <MenuItem Header="_File">
                 <MenuItem x:Name="OpenGPFMenuItem" Header="_Open GPF" InputGestureText="Ctrl+O" Command="Open"/>
-                <MenuItem x:Name="ImportTGAMenuItem" Header="_Import TGA" Click="BtnOpenTGA_Click"/>
+                <MenuItem x:Name="ImportTGAMenuItem" Header="_Import TGA" Click="MenuImportTGA_Click"/>
                 <Separator/>
                 <MenuItem x:Name="SaveGPFMenuItem" Header="_Save GPF" InputGestureText="Ctrl+S" IsEnabled="{Binding SaveEnabled}" Command="Save"/>
-                <MenuItem x:Name="ExportTGAMenuItem" Header="_Export TGA" IsEnabled="{Binding SaveEnabled}" Click="BtnSaveTGA_Click"/>
-                <MenuItem x:Name="ExportPatchMenuItem" Header="_Export Patch" IsEnabled="{Binding SaveEnabled}" Click="BtnExportPatch_Click"/>
+                <MenuItem x:Name="ExportTGAMenuItem" Header="_Export TGA" IsEnabled="{Binding SaveEnabled}" Click="MenuExportTGA_Click"/>
+                <MenuItem x:Name="ExportPatchMenuItem" Header="_Export Patch" IsEnabled="{Binding SaveEnabled}" Click="MenuExportPatch_Click"/>
                 <Separator/>
                 <MenuItem x:Name="CloseMenuItem" Header="_Close" InputGestureText="Ctrl+W" IsEnabled="{Binding SaveEnabled}" Command="Close"/>
-                <MenuItem x:Name="ExitMenuItem" Header="_Exit" InputGestureText="Alt+F4" Click="ExitMenuItem_Click"/>
+                <MenuItem x:Name="ExitMenuItem" Header="_Exit" InputGestureText="Alt+F4" Click="MenuExit_Click"/>
             </MenuItem>
             <MenuItem Header="_View">
                 <MenuItem x:Name="ShowCharGridMenuItem" Header="Show Character Grid" IsCheckable="True" IsChecked="{Binding ShowGrid}"/>
             </MenuItem>
             <MenuItem Header="_Help">
-                <MenuItem x:Name="AboutMenuItem" Header="About" Click="MenuItem_About_Click" />
+                <MenuItem x:Name="AboutMenuItem" Header="About" Click="MenuAbout_Click" />
             </MenuItem>
 
         </Menu>

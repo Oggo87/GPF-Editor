@@ -31,9 +31,19 @@ namespace GPF_Editor
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
         }
 
-        private void OkButton_Click(object sender, RoutedEventArgs e)
+        private void BtnOk_Click(object sender, RoutedEventArgs e)
         {
             Close();
+        }
+
+        private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+        {
+            var ps = new ProcessStartInfo(e.Uri.ToString())
+            {
+                UseShellExecute = true,
+                Verb = "open"
+            };
+            Process.Start(ps);
         }
     }
 }

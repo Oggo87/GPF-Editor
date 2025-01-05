@@ -6,19 +6,31 @@
         xmlns:local="clr-namespace:GPF_Editor"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="About" Height="200" Width="350"
+        Title="About" Height="200" Width="400"
+        SizeToContent="WidthAndHeight" 
         Icon="GPFEditor.ico">
-    <Grid>
+    <Grid Margin="0,0,0,0" MinWidth="400">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="123*"/>
-            <ColumnDefinition Width="215*"/>
+            <ColumnDefinition Width="120*"/>
+            <ColumnDefinition Width="280*"/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="OkButton" Content="Ok" Margin="151,130,21,0" Click="OkButton_Click" Height="20 " VerticalAlignment="Top" Grid.Column="1"/>
-        <Label x:Name="AppNameLabel" Content="GPF Editor" Margin="10,13,10,0" VerticalAlignment="Top" Grid.Column="1" Height="26"/>
-        <Label x:Name="VersionLabel" Content="Version" Margin="10,43,10,0" VerticalAlignment="Top" Grid.Column="1" Height="26"/>
-        <Label x:Name="AuthorLabel" Content="Author" Margin="10,73,10,0" VerticalAlignment="Top" Grid.Column="1" Height="26"/>
-        <Label x:Name="CopyrightLabel" Content="Copyright" Margin="10,103,10,0" VerticalAlignment="Top" Grid.Column="1" Height="26"/>
-        <Image HorizontalAlignment="Left" Height="100" Margin="10,23,0,0" VerticalAlignment="Top" Width="100" Source="GPFEditor.png"/>
+
+        <Image Height="100" Margin="10,0,10,0" VerticalAlignment="Center" Source="GPFEditor.png"/>
+
+        <Label x:Name="AppNameLabel" Content="GPF Editor" Margin="10,10,10,0" VerticalAlignment="Top" Grid.Column="1" Height="26"/>
+        <Label x:Name="VersionLabel" Content="Version" Margin="10,36,10,0" VerticalAlignment="Top" Grid.Column="1" Height="26"/>
+        <Label x:Name="AuthorLabel" Content="Author" Margin="10,62,10,0" VerticalAlignment="Top" Grid.Column="1" Height="26"/>
+        <Label x:Name="CopyrightLabel" Content="Copyright" Margin="10,88,10,0" VerticalAlignment="Top" Grid.Column="1" Height="26"/>
+        <Border BorderBrush="{x:Null}" Margin="10,114,10,0" VerticalAlignment="Top" Grid.Column="1" Height="26">
+            <TextBlock x:Name="URL" Margin="5,0,5,0" VerticalAlignment="Center">           
+                <Hyperlink NavigateUri="https://github.com/Oggo87/GPF-Editor" RequestNavigate="Hyperlink_RequestNavigate">
+                    https://github.com/Oggo87/GPF-Editor
+                </Hyperlink>
+            </TextBlock>
+        </Border>
+
+
+        <Button x:Name="BtnOk" Content="Ok" Margin="150,154,20,10" Click="BtnOk_Click" Grid.Column="1"/>
 
     </Grid>
 </Window>

@@ -168,6 +168,9 @@ namespace GPF_Editor
 
         public void LoadGPF(Stream gpfStream)
         {
+            // Clear current FontImage and CharGrid entries
+            Clear();
+
             using BinaryReader reader = new(gpfStream, System.Text.Encoding.Unicode);
 
             // Read number of CharGrid entries
@@ -179,9 +182,6 @@ namespace GPF_Editor
             // Read TGA width and height
             int tgaWidth = reader.ReadInt32();
             int tgaHeight = reader.ReadInt32();
-
-            // Clear CharGrid entries
-            CharGrid.CharTable.Clear();
 
             // Read CharGrid entries
             for (int i = 0; i < numEntries; i++)
