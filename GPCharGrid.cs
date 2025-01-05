@@ -126,6 +126,13 @@ namespace GPF_Editor
                 entry.ScaleEntry(scale);
             }
         }
+
+        public void Clear()
+        {
+            RowHeight = 0;
+            CharTable.Clear();
+            GridImage = null;
+        }
     }
 
     public class CharTableEntry : INotifyPropertyChanged

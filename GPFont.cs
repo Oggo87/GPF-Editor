@@ -355,6 +355,10 @@ namespace GPF_Editor
 
         public void RefreshImage()
         {
+            if (FontImage != null)
+            {
+                CharGrid.UpdateGridImage(FontImage.Width);
+            }
             FontBMP = GetBMP();
         }
 
@@ -364,13 +368,13 @@ namespace GPF_Editor
             {
                 CharGrid.UpdateGridImage(FontImage.Width, selectedEntry);
             }
-            RefreshImage();
+            FontBMP = GetBMP();
         }
 
         public void Clear()
         {
             FontImage = null;
-            CharGrid.CharTable.Clear();
+            CharGrid.Clear();
 
         }
     }

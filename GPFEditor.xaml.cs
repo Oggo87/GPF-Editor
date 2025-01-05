@@ -25,6 +25,11 @@ namespace GPF_Editor
                 GpFont.RefreshImage();
             };
 
+            GpFont.CharGrid.PropertyChanged += (sender, e) =>
+            {
+                GpFont.RefreshImage();
+            };
+
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 
             if (version != null)
